@@ -1,0 +1,265 @@
+Introduction: "The event promotion platform connects event hosts, promoters, artists, & attendees, facilitating event creation, promotion, ticket sales, & social interactions."
+
+ApplicationOverview:
+  Description: "Users can create & manage events, promote events, purchase tickets, engage in social interactions, manage profiles, & receive notifications."
+
+DatabaseSchema:
+  Tables:
+    Users:
+      Fields:
+        - id: "PK"
+        - username: "Unique username"
+        - email: "User's email"
+        - password_hash: "Hashed password"
+        - first_name: "First name"
+        - last_name: "Last name"
+        - phone_number: "Contact phone #"
+        - date_of_birth: "DOB"
+        - location: "User's location"
+        - profile_image_url: "URL to profile image"
+        - bio: "Bio"
+        - oauth_provider: "OAuth provider name"
+        - oauth_uid: "OAuth unique ID"
+        - social_links: "JSON obj of social links"
+        - preferences: "JSON obj of prefs"
+        - followers_count: "# followers"
+        - following_count: "# following"
+        - verified: "Bool for email verified"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Roles:
+      Fields:
+        - id: "PK"
+        - name: "Role name"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    UsersRoles:
+      Fields:
+        - user_id: "FK to Users"
+        - role_id: "FK to Roles"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Events:
+      Fields:
+        - id: "PK"
+        - title: "Event title"
+        - description: "Event desc"
+        - location: "Event location"
+        - start_time: "Start datetime"
+        - end_time: "End datetime"
+        - host_id: "FK to Users (host)"
+        - ticket_price: "Decimal, price per ticket"
+        - inventory: "Total tickets available"
+        - tickets_sold: "# tickets sold"
+        - event_image_url: "URL to event image"
+        - category: "Event category"
+        - tags: "JSON arr of tags"
+        - status: "Event status"
+        - venue_id: "FK to Venues"
+        - visibility: "Event visibility"
+        - age_restriction: "Min age required"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Attendances:
+      Fields:
+        - id: "PK"
+        - user_id: "FK to Users"
+        - event_id: "FK to Events"
+        - ticket_count: "# tickets purchased"
+        - total_price: "Total ticket price"
+        - attendance_status: "Attendance status"
+        - check_in_status: "Bool for check-in"
+        - ticket_type: "Type of ticket"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Promotions:
+      Fields:
+        - id: "PK"
+        - user_id: "FK to Users (promoter)"
+        - event_id: "FK to Events"
+        - commission_rate: "Decimal commission rate"
+        - tickets_sold: "# tickets sold via promoter"
+        - promo_code: "Unique promo code"
+        - earnings: "Total earnings"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Connections:
+      Fields:
+        - id: "PK"
+        - user_id: "FK to Users"
+        - connected_user_id: "FK to Users"
+        - status: "Connection status"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Venues:
+      Fields:
+        - id: "PK"
+        - name: "Venue name"
+        - address: "Venue addr"
+        - city: "City"
+        - state: "State"
+        - zip_code: "ZIP code"
+        - country: "Country"
+        - capacity: "Venue capacity"
+        - description: "Venue desc"
+        - latitude: "Lat coord"
+        - longitude: "Long coord"
+        - image_url: "URL to venue image"
+        - contact_info: "Contact info"
+        - amenities: "JSON obj of amenities"
+        - website: "Website URL"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Artists:
+      Fields:
+        - id: "PK"
+        - name: "Artist name"
+        - genre: "Perf genre"
+        - bio: "Bio"
+        - profile_image_url: "URL to profile image"
+        - social_links: "JSON obj of social links"
+        - contact_info: "Contact info"
+        - verified: "Bool for verified"
+        - followers_count: "# followers"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Performances:
+      Fields:
+        - id: "PK"
+        - artist_id: "FK to Artists"
+        - event_id: "FK to Events"
+        - performance_time: "Perf start time"
+        - duration: "Duration in mins"
+        - stage: "Stage name"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Notifications:
+      Fields:
+        - id: "PK"
+        - user_id: "FK to Users"
+        - content: "Notification content"
+        - read: "Bool for read status"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+    Comments:
+      Fields:
+        - id: "PK"
+        - user_id: "FK to Users"
+        - event_id: "FK to Events"
+        - content: "Comment text"
+        - created_at: "Creation timestamp"
+        - updated_at: "Update timestamp"
+  Relationships:
+    - "Users ↔ Roles: *:* via UsersRoles"
+    - "User → Events (hosts): 1:*"
+    - "User ↔ Events (attends): *:* via Attendances"
+    - "Event → Attendances: 1:*"
+    - "Promoter ↔ Events (promotes): *:* via Promotions"
+    - "Event → Promotions: 1:*"
+    - "Users ↔ Users (Connections): *:*"
+    - "Event → Venue: *:1"
+    - "Venue → Events: 1:*"
+    - "Event → Performances: 1:*"
+    - "Artist ↔ Events (performs at): *:* via Performances"
+    - "User → Notifications: 1:*"
+    - "User ↔ Events (comments on): *:* via Comments"
+    - "Event → Comments: 1:*"
+
+ApplicationFunctionality:
+  UserRolesAndPermissions:
+    Admin:
+      - "Full access"
+      - "Manage users, events, settings"
+    Host:
+      - "Create & manage events"
+      - "Manage ticket sales"
+    Promoter:
+      - "Promote events"
+      - "Earn commissions"
+    User:
+      - "Browse & attend events"
+      - "Connect w/ users"
+      - "Comment on events"
+    Moderator:
+      - "Monitor content"
+      - "Manage reports"
+
+  AuthenticationAndAuthorization:
+    - "User registration w/ email/password or social login"
+    - "Secure login/logout"
+    - "Password reset & change"
+    - "Email verification"
+    - "Role-based access control"
+
+  EventManagement:
+    - "Event creation by hosts"
+    - "Event publishing & scheduling"
+    - "Event editing"
+    - "Ticket inventory management"
+    - "Event cancellation"
+
+  TicketingSystem:
+    - "Ticket purchase by users"
+    - "Payment processing"
+    - "Order confirmation"
+    - "Check-in system"
+    - "Ticket transfers"
+
+  PromotionsAndAffiliates:
+    - "Promoter enrollment"
+    - "Promo codes"
+    - "Commission tracking"
+    - "Earnings dashboard"
+    - "Payouts"
+
+  SocialFeatures:
+    - "User profiles"
+    - "Connections between users"
+    - "Comments & discussions"
+    - "Notifications"
+
+  UserInterfaceAndExperience:
+    - "Responsive design"
+    - "Navigation w/ top bar & sidebar"
+    - "Dashboard w/ events & notifications"
+    - "Search & filtering"
+    - "Accessibility & localization"
+
+DevelopmentGuidelines:
+  BackendDevelopment:
+    - "Use suitable server-side language/framework"
+    - "Implement database schema as defined"
+    - "Develop RESTful APIs"
+    - "Implement authentication"
+    - "Data validation & sanitization"
+    - "Error handling"
+    - "Caching & performance optimization"
+
+  FrontendDevelopment:
+    - "Use suitable frontend framework/library"
+    - "Implement responsive layouts"
+    - "Use state management if necessary"
+    - "Build reusable components"
+    - "Consume backend APIs"
+    - "Handle authentication"
+    - "Ensure accessibility"
+    - "Client-side input validation"
+    - "Write tests"
+
+  TestingAndDeployment:
+    - "Automated testing"
+    - "End-to-end testing"
+    - "Deployment pipeline"
+    - "Scalability & load balancing"
+    - "Monitoring & logging"
+    - "Security considerations"
+
+Conclusion: "This guide provides a comprehensive blueprint for building an event promotion platform, allowing developers to create a robust & user-friendly application using any tech stack."
+
+NextSteps:
+  - "Design Phase: Create wireframes & plan architecture"
+  - "Development Phase: Set up environment & implement core functions"
+  - "Testing Phase: Write tests & conduct user acceptance testing"
+  - "Deployment Phase: Deploy to staging & prepare for production"
+
+Note: "Always adhere to best practices, including code quality, documentation, & team collaboration."
